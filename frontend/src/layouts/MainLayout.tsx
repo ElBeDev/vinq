@@ -24,6 +24,7 @@ import {
   HomeWork as HomeWorkIcon,
   TrendingUp as TrendingUpIcon,
   Assignment as AssignmentIcon,
+  CalendarMonth as CalendarMonthIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
 } from '@mui/icons-material';
 import LogoutIcon from '@mui/icons-material/Logout'
@@ -37,6 +38,7 @@ const menuItems = [
   { text: 'Propiedades', icon: <HomeWorkIcon />, path: '/properties' },
   { text: 'Oportunidades', icon: <TrendingUpIcon />, path: '/opportunities' },
   { text: 'Actividades', icon: <AssignmentIcon />, path: '/activities' },
+  { text: 'Calendario', icon: <CalendarMonthIcon />, path: '/calendar' },
   { text: 'Administración', icon: <AdminPanelSettingsIcon />, path: '/admin', adminOnly: true },
 ]
 

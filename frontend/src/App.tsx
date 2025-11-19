@@ -7,6 +7,7 @@ import Leads from './pages/Leads/Leads'
 import Properties from './pages/Properties/Properties'
 import Opportunities from './pages/Opportunities/Opportunities'
 import Activities from './pages/Activities/Activities'
+import Calendar from './pages/Calendar/Calendar'
 import AdminPanel from './pages/Admin/AdminPanel'
 import MainLayout from './layouts/MainLayout'
 
@@ -30,6 +31,7 @@ function App() {
         <Route path="properties" element={<Properties />} />
         <Route path="opportunities" element={<Opportunities />} />
         <Route path="activities" element={<Activities />} />
+        <Route path="calendar" element={<Calendar />} />
         <Route path="admin" element={<AdminPanel />} />
       </Route>
 
