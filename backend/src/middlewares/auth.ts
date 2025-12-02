@@ -72,7 +72,7 @@ export const requireAuth = async (
 
     // Agregar usuario al request (sin password)
     const { password: _, ...userWithoutPassword } = user;
-    req.user = userWithoutPassword;
+    req.user = userWithoutPassword as any;
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
