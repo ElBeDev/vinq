@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "cd backend && npx prisma generate && npx prisma migrate deploy && cd ../frontend && npm install && npm run build",
   "builds": [
     {
       "src": "backend/src/index.ts",
