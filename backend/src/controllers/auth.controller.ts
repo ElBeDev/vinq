@@ -300,7 +300,7 @@ export const forgotPassword = async (
  * @access  Public
  */
 export const resetPassword = async (
-  req: Request<object, object, ResetPasswordInput>,
+  _req: Request<object, object, ResetPasswordInput>,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
