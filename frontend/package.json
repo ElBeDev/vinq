@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "vercel-build": "cd ../backend && npm install && npx prisma generate && npx prisma migrate deploy && cd ../frontend && npm install && npm run build"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
