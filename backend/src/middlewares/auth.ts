@@ -18,7 +18,6 @@ declare global {
         avatar: string | null;
         role: 'ADMIN' | 'MANAGER' | 'AGENT';
         status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-        emailVerified: boolean;
       };
     }
   }
@@ -58,7 +57,6 @@ export const requireAuth = async (
         avatar: true,
         role: true,
         status: true,
-        emailVerified: true,
         password: true,
       },
     });
