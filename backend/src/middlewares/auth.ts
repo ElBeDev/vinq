@@ -12,8 +12,13 @@ declare global {
       user?: {
         id: string;
         email: string;
-        role: string;
-        status: string;
+        firstName: string;
+        lastName: string;
+        phone: string | null;
+        avatar: string | null;
+        role: 'ADMIN' | 'MANAGER' | 'AGENT';
+        status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+        emailVerified: boolean;
       };
     }
   }
@@ -42,7 +47,21 @@ export const requireAuth = async (
     ) as { userId: string };
 
     // Buscar usuario
-    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        avatar: true,
+        role: true,
+        status: true,
+        emailVerified: true,
+        password: true,
+      },
+    });
 
     if (!user) {
       throw new AppError('Usuario no encontrado', 401);
@@ -77,7 +96,7 @@ export const requireRole = (...roles: UserRole[]) => {
       throw new AppError('Usuario no autenticado', 401);
     }
 
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role as UserRole)) {
       throw new AppError(
         'No tienes permisos para realizar esta acción',
         403

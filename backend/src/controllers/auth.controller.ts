@@ -305,7 +305,7 @@ export const resetPassword = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { token, password } = req.body;
+    const { password } = req.body;
 
     // TODO: Agregar campos resetPasswordToken y resetPasswordExpire al schema
     // const user = await prisma.user.findFirst({
