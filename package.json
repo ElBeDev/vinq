@@ -21,7 +21,7 @@
     "preview:frontend": "cd frontend && npm run preview",
     "prisma:generate": "cd backend && npx prisma generate",
     "prisma:migrate": "cd backend && npx prisma migrate deploy",
-    "vercel-build": "npm install -w backend && npm install -w frontend && cd backend && npx prisma generate && npx prisma migrate deploy && cd ../frontend && npm run build"
+    "vercel-build": "npm install && cd backend && npm install && npx prisma generate && npx prisma migrate deploy && cd ../frontend && npm install && npm run build"
   },
   "keywords": [
     "crm",
