@@ -1,3 +1,4 @@
+// @ts-ignore - Prisma Client is generated at runtime
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../utils/logger';
 

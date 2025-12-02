@@ -3,10 +3,15 @@ import { UserRole } from '../utils/constants';
 
 // Schema para registro
 export const registerSchema = z.object({
-  name: z
+  firstName: z
     .string()
     .min(2, 'El nombre debe tener al menos 2 caracteres')
-    .max(100, 'El nombre no puede exceder 100 caracteres')
+    .max(50, 'El nombre no puede exceder 50 caracteres')
+    .trim(),
+  lastName: z
+    .string()
+    .min(2, 'El apellido debe tener al menos 2 caracteres')
+    .max(50, 'El apellido no puede exceder 50 caracteres')
     .trim(),
   email: z
     .string()

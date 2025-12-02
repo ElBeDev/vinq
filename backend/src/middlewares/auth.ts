@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AppError } from './errorHandler';
-import User, { IUser } from '../models/User';
+import prisma from '../config/db';
+import { User } from '@prisma/client';
 import { UserRole, UserStatus } from '../utils/constants';
 import { logger } from '../utils/logger';
 
@@ -9,7 +10,7 @@ import { logger } from '../utils/logger';
 declare global {
   namespace Express {
     interface Request {
-      user?: IUser;
+      user?: User;
     }
   }
 }
@@ -37,7 +38,7 @@ export const requireAuth = async (
     ) as { userId: string };
 
     // Buscar usuario
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
 
     if (!user) {
       throw new AppError('Usuario no encontrado', 401);
@@ -48,8 +49,9 @@ export const requireAuth = async (
       throw new AppError('Cuenta inactiva. Contacte al administrador', 403);
     }
 
-    // Agregar usuario al request
-    req.user = user;
+    // Agregar usuario al request (sin password)
+    const { password: _, ...userWithoutPassword } = user;
+    req.user = userWithoutPassword as User;
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -107,7 +109,7 @@ export const requireOwnerOrAdmin = (resourceUserIdField = 'userId') => {
     const resourceUserId =
       req.params[resourceUserIdField] || req.body[resourceUserIdField];
 
-    if (req.user._id.toString() !== resourceUserId) {
+    if (req.user.id !== resourceUserId) {
       throw new AppError('No tienes permisos para acceder a este recurso', 403);
     }
 

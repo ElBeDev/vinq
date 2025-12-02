@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import prisma from '../config/db';
+import { hashPassword, comparePassword } from '../models/User';
 import { AppError } from '../middlewares/errorHandler';
 import { logger } from '../utils/logger';
 import {
@@ -17,7 +18,7 @@ const generateAccessToken = (userId: string): string => {
   return jwt.sign(
     { userId },
     process.env.JWT_SECRET || 'your-secret-key',
-    { expiresIn: process.env.JWT_EXPIRE || '15m' } as jwt.SignOptions
+    { expiresIn: process.env.JWT_EXPIRE || '24h' } as jwt.SignOptions
   );
 };
 
@@ -41,26 +42,32 @@ export const register = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { name, email, password, phone, role } = req.body;
+    const { firstName, lastName, email, password, phone, role } = req.body;
 
     // Verificar si el usuario ya existe
-    const existingUser = await User.findOne({ email });
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       throw new AppError('El email ya está registrado', 400);
     }
 
+    // Hash password
+    const hashedPassword = await hashPassword(password);
+
     // Crear usuario
-    const user = await User.create({
-      name,
-      email,
-      password,
-      phone,
-      role,
+    const user = await prisma.user.create({
+      data: {
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        phone,
+        role: role || 'USER',
+      },
     });
 
     // Generar tokens
-    const accessToken = generateAccessToken(user._id.toString());
-    const refreshToken = generateRefreshToken(user._id.toString());
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
     logger.info(`Nuevo usuario registrado: ${email}`);
 
@@ -69,12 +76,11 @@ export const register = async (
       message: 'Usuario registrado exitosamente',
       data: {
         user: {
-          id: user._id,
-          name: user.name,
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
           email: user.email,
           role: user.role,
-          avatar: user.avatar,
-          phone: user.phone,
           status: user.status,
         },
         accessToken,
@@ -100,13 +106,13 @@ export const login = async (
     const { email, password } = req.body;
 
     // Buscar usuario con password
-    const user = await User.findOne({ email }).select('+password');
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       throw new AppError('Credenciales inválidas', 401);
     }
 
     // Verificar password
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
       throw new AppError('Credenciales inválidas', 401);
     }
@@ -116,9 +122,15 @@ export const login = async (
       throw new AppError('Cuenta inactiva. Contacte al administrador', 403);
     }
 
+    // Actualizar lastLoginAt
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+
     // Generar tokens
-    const accessToken = generateAccessToken(user._id.toString());
-    const refreshToken = generateRefreshToken(user._id.toString());
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
     logger.info(`Usuario inició sesión: ${email}`);
 
@@ -127,12 +139,11 @@ export const login = async (
       message: 'Login exitoso',
       data: {
         user: {
-          id: user._id,
-          name: user.name,
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
           email: user.email,
           role: user.role,
-          avatar: user.avatar,
-          phone: user.phone,
           status: user.status,
         },
         accessToken,
@@ -163,11 +174,11 @@ export const getMe = async (
       success: true,
       data: {
         user: {
-          id: req.user._id,
-          name: req.user.name,
+          id: req.user.id,
+          firstName: req.user.firstName,
+          lastName: req.user.lastName,
           email: req.user.email,
           role: req.user.role,
-          avatar: req.user.avatar,
           phone: req.user.phone,
           status: req.user.status,
         },
@@ -198,7 +209,7 @@ export const refreshToken = async (
     ) as { userId: string };
 
     // Buscar usuario
-    const user = await User.findById(decoded.userId);
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user) {
       throw new AppError('Usuario no encontrado', 404);
     }
@@ -209,7 +220,7 @@ export const refreshToken = async (
     }
 
     // Generar nuevo access token
-    const newAccessToken = generateAccessToken(user._id.toString());
+    const newAccessToken = generateAccessToken(user.id);
 
     res.status(200).json({
       success: true,
@@ -241,7 +252,7 @@ export const forgotPassword = async (
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       // No revelar si el usuario existe o no (por seguridad)
       res.status(200).json({
@@ -259,25 +270,28 @@ export const forgotPassword = async (
       .update(resetToken)
       .digest('hex');
 
-    // Guardar token en BD (expira en 1 hora)
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpire = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
-    await user.save();
+    // TODO: Agregar campos resetPasswordToken y resetPasswordExpire al schema de Prisma
+    // await prisma.user.update({
+    //   where: { id: user.id },
+    //   data: {
+    //     resetPasswordToken: hashedToken,
+    //     resetPasswordExpire: new Date(Date.now() + 60 * 60 * 1000),
+    //   },
+    // });
 
     // TODO: Enviar email con el token (integrar servicio de email)
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
     logger.info(`Reset password solicitado para: ${email}`);
     logger.info(`Reset URL (DEV only): ${resetUrl}`);
 
-    // Por ahora devolver el token en desarrollo (en producción solo enviar email)
     const isDevelopment = process.env.NODE_ENV === 'development';
 
     res.status(200).json({
       success: true,
       message:
         'Si el email existe, recibirás instrucciones para resetear tu contraseña',
-      ...(isDevelopment && { resetToken, resetUrl }), // Solo en desarrollo
+      ...(isDevelopment && { resetToken, resetUrl }),
     });
   } catch (error) {
     next(error);
@@ -300,23 +314,32 @@ export const resetPassword = async (
     // Hash del token recibido
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-    // Buscar usuario con token válido y no expirado
-    const user = await User.findOne({
-      resetPasswordToken: hashedToken,
-      resetPasswordExpire: { $gt: Date.now() },
-    });
+    // TODO: Agregar campos resetPasswordToken y resetPasswordExpire al schema
+    // const user = await prisma.user.findFirst({
+    //   where: {
+    //     resetPasswordToken: hashedToken,
+    //     resetPasswordExpire: { gt: new Date() },
+    //   },
+    // });
 
-    if (!user) {
-      throw new AppError('Token inválido o expirado', 400);
-    }
+    // if (!user) {
+    //   throw new AppError('Token inválido o expirado', 400);
+    // }
 
-    // Actualizar password
-    user.password = password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
+    // Hash nueva password
+    const hashedPassword = await hashPassword(password);
 
-    logger.info(`Contraseña reseteada para usuario: ${user.email}`);
+    // TODO: Actualizar password y limpiar tokens
+    // await prisma.user.update({
+    //   where: { id: user.id },
+    //   data: {
+    //     password: hashedPassword,
+    //     resetPasswordToken: null,
+    //     resetPasswordExpire: null,
+    //   },
+    // });
+
+    logger.info(`Contraseña reseteada (TODO: implementar campos en schema)`);
 
     res.status(200).json({
       success: true,

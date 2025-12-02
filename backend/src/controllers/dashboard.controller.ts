@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import User from '../models/User';
+import prisma from '../config/db';
 import { UserRole } from '../utils/constants';
 
 // Helper para calcular rangos de fecha
@@ -38,9 +38,11 @@ export const getDashboardStats = async (req: Request, res: Response, next: NextF
     const { startDate, endDate } = getDateRange(period);
 
     // Por ahora retornamos stats básicas de usuarios (expandiremos con Leads, Deals, etc.)
-    const totalUsers = await User.countDocuments();
-    const newUsersInPeriod = await User.countDocuments({
-      createdAt: { $gte: startDate, $lte: endDate }
+    const totalUsers = await prisma.user.count();
+    const newUsersInPeriod = await prisma.user.count({
+      where: {
+        createdAt: { gte: startDate, lte: endDate }
+      }
     });
 
     // KPIs simulados (se reemplazarán con datos reales de módulos futuros)
@@ -101,7 +103,7 @@ export const getKPIs = async (req: Request, res: Response, next: NextFunction) =
     // KPIs según el rol del usuario
     if (user?.role === UserRole.ADMIN) {
       kpis = {
-        totalUsers: await User.countDocuments(),
+        totalUsers: await prisma.user.count(),
         totalLeads: 0,
         totalDeals: 0,
         totalRevenue: 0,
