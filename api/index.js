@@ -1,4 +1,5 @@
 // Vercel Serverless Function for Backend API
-const app = require('../backend/dist/app.js').default;
+const app = require('../backend/dist/app.js');
 
-module.exports = app;
+// Export the app (handle both default and named exports)
+module.exports = app.default || app;

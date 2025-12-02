@@ -90,4 +90,6 @@ app.use('/api/v1/accounts', accountRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+// Export for both ES modules and CommonJS
 export default app;
+module.exports = app;
