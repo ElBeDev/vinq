@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AppError } from './errorHandler';
 import prisma from '../config/db';
-import { User } from '@prisma/client';
 import { UserRole, UserStatus } from '../utils/constants';
 import { logger } from '../utils/logger';
 

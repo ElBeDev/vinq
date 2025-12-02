@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
-import { User } from '@prisma/client';
+import type { User as PrismaUser } from '@prisma/client';
 
 // Extender el tipo User de Prisma con métodos de utilidad
-export type UserWithMethods = User & {
+export type UserWithMethods = PrismaUser & {
   comparePassword(candidatePassword: string): Promise<boolean>;
 };
 
@@ -23,6 +23,3 @@ export async function comparePassword(
     return false;
   }
 }
-
-// Re-exportar el tipo User de Prisma
-export type { User } from '@prisma/client';

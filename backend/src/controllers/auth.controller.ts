@@ -265,10 +265,6 @@ export const forgotPassword = async (
 
     // Generar token de reset
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
 
     // TODO: Agregar campos resetPasswordToken y resetPasswordExpire al schema de Prisma
     // await prisma.user.update({
