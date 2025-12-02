@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "npm run build:backend && npm run build:frontend",
+  "installCommand": "npm install && npm run install:all",
   "builds": [
     {
       "src": "backend/src/index.ts",
