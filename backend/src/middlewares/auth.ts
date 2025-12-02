@@ -9,7 +9,12 @@ import { logger } from '../utils/logger';
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: {
+        id: string;
+        email: string;
+        role: string;
+        status: string;
+      };
     }
   }
 }
@@ -50,7 +55,7 @@ export const requireAuth = async (
 
     // Agregar usuario al request (sin password)
     const { password: _, ...userWithoutPassword } = user;
-    req.user = userWithoutPassword as User;
+    req.user = userWithoutPassword;
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {

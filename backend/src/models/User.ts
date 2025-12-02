@@ -1,10 +1,4 @@
 import bcrypt from 'bcryptjs';
-import type { User as PrismaUser } from '@prisma/client';
-
-// Extender el tipo User de Prisma con métodos de utilidad
-export type UserWithMethods = PrismaUser & {
-  comparePassword(candidatePassword: string): Promise<boolean>;
-};
 
 // Función para hashear password
 export async function hashPassword(password: string): Promise<string> {

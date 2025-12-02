@@ -307,9 +307,6 @@ export const resetPassword = async (
   try {
     const { token, password } = req.body;
 
-    // Hash del token recibido
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-
     // TODO: Agregar campos resetPasswordToken y resetPasswordExpire al schema
     // const user = await prisma.user.findFirst({
     //   where: {
@@ -321,9 +318,6 @@ export const resetPassword = async (
     // if (!user) {
     //   throw new AppError('Token inválido o expirado', 400);
     // }
-
-    // Hash nueva password
-    const hashedPassword = await hashPassword(password);
 
     // TODO: Actualizar password y limpiar tokens
     // await prisma.user.update({
