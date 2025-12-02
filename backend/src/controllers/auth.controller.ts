@@ -305,35 +305,10 @@ export const resetPassword = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { password } = req.body;
-
-    // TODO: Agregar campos resetPasswordToken y resetPasswordExpire al schema
-    // const user = await prisma.user.findFirst({
-    //   where: {
-    //     resetPasswordToken: hashedToken,
-    //     resetPasswordExpire: { gt: new Date() },
-    //   },
-    // });
-
-    // if (!user) {
-    //   throw new AppError('Token inválido o expirado', 400);
-    // }
-
-    // TODO: Actualizar password y limpiar tokens
-    // await prisma.user.update({
-    //   where: { id: user.id },
-    //   data: {
-    //     password: hashedPassword,
-    //     resetPasswordToken: null,
-    //     resetPasswordExpire: null,
-    //   },
-    // });
-
-    logger.info(`Contraseña reseteada (TODO: implementar campos en schema)`);
-
-    res.status(200).json({
-      success: true,
-      message: 'Contraseña actualizada exitosamente',
+    // TODO: Implementar cuando se agreguen campos resetPasswordToken al schema
+    res.status(501).json({
+      success: false,
+      message: 'Funcionalidad no implementada aún',
     });
   } catch (error) {
     next(error);

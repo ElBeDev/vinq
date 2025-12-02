@@ -124,7 +124,7 @@ export const requireOwnerOrAdmin = (resourceUserIdField = 'userId') => {
     }
 
     // Si es admin, permitir acceso
-    if (req.user.role === UserRole.ADMIN) {
+    if (req.user.role === 'ADMIN') {
       return next();
     }
 

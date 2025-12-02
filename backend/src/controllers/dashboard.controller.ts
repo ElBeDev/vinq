@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/db';
-import { UserRole } from '../utils/constants';
 
 // Helper para calcular rangos de fecha
 const getDateRange = (period: string) => {
@@ -101,7 +100,7 @@ export const getKPIs = async (req: Request, res: Response, next: NextFunction) =
     let kpis: any = {};
 
     // KPIs según el rol del usuario
-    if (user?.role === UserRole.ADMIN) {
+    if (user?.role === 'ADMIN') {
       kpis = {
         totalUsers: await prisma.user.count(),
         totalLeads: 0,
@@ -109,7 +108,7 @@ export const getKPIs = async (req: Request, res: Response, next: NextFunction) =
         totalRevenue: 0,
         systemHealth: 100,
       };
-    } else if (user?.role === UserRole.MANAGER) {
+    } else if (user?.role === 'MANAGER') {
       kpis = {
         teamSize: 0,
         teamLeads: 0,
@@ -154,7 +153,7 @@ export const getRecentActivity = async (req: Request, res: Response, next: NextF
         type: 'lead',
         action: 'created',
         description: 'New lead created: John Doe',
-        user: user?.name,
+        user: `${user?.firstName} ${user?.lastName}`,
         timestamp: new Date(Date.now() - 1000 * 60 * 30),
         icon: 'UserAddOutlined',
         color: '#1C4BDE',
@@ -164,7 +163,7 @@ export const getRecentActivity = async (req: Request, res: Response, next: NextF
         type: 'deal',
         action: 'updated',
         description: 'Deal moved to Negotiation stage',
-        user: user?.name,
+        user: `${user?.firstName} ${user?.lastName}`,
         timestamp: new Date(Date.now() - 1000 * 60 * 120),
         icon: 'DollarOutlined',
         color: '#28A745',
@@ -174,7 +173,7 @@ export const getRecentActivity = async (req: Request, res: Response, next: NextF
         type: 'task',
         action: 'completed',
         description: 'Task completed: Follow up with client',
-        user: user?.name,
+        user: `${user?.firstName} ${user?.lastName}`,
         timestamp: new Date(Date.now() - 1000 * 60 * 180),
         icon: 'CheckCircleOutlined',
         color: '#5C6AC4',
