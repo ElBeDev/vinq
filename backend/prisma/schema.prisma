@@ -1,0 +1,316 @@
+// VinQ CRM - Prisma Schema
+// PostgreSQL Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  AGENT
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  UNQUALIFIED
+  CONVERTED
+  LOST
+}
+
+enum LeadSource {
+  WEBSITE
+  REFERRAL
+  SOCIAL_MEDIA
+  EMAIL_CAMPAIGN
+  COLD_CALL
+  ADVERTISEMENT
+  TRADE_SHOW
+  PARTNER
+  OTHER
+}
+
+enum LeadRating {
+  HOT
+  WARM
+  COLD
+}
+
+enum AccountType {
+  CUSTOMER
+  PROSPECT
+  PARTNER
+  RESELLER
+  VENDOR
+  COMPETITOR
+  OTHER
+}
+
+enum AccountIndustry {
+  REAL_ESTATE
+  CONSTRUCTION
+  FINANCE
+  TECHNOLOGY
+  RETAIL
+  HEALTHCARE
+  EDUCATION
+  HOSPITALITY
+  MANUFACTURING
+  OTHER
+}
+
+enum AccountSize {
+  SMALL        // 1-50
+  MEDIUM       // 51-200
+  LARGE        // 201-1000
+  ENTERPRISE   // 1000+
+}
+
+// ============================================
+// USER MODEL
+// ============================================
+
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          UserRole    @default(USER)
+  status        UserStatus  @default(ACTIVE)
+  phone         String?
+  mobile        String?
+  department    String?
+  title         String?
+  avatar        String?
+  timezone      String      @default("America/Mexico_City")
+  language      String      @default("es")
+  lastLoginAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  createdLeads     Lead[]      @relation("LeadCreator")
+  assignedLeads    Lead[]      @relation("LeadAssignee")
+  createdContacts  Contact[]   @relation("ContactCreator")
+  assignedContacts Contact[]   @relation("ContactAssignee")
+  createdAccounts  Account[]   @relation("AccountCreator")
+  assignedAccounts Account[]   @relation("AccountAssignee")
+
+  @@map("users")
+}
+
+// ============================================
+// LEAD MODEL
+// ============================================
+
+model Lead {
+  id              String       @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  mobile          String?
+  company         String?
+  title           String?
+  website         String?
+  industry        String?
+  employees       Int?
+  annualRevenue   Float?
+  status          LeadStatus   @default(NEW)
+  source          LeadSource   @default(OTHER)
+  rating          LeadRating?
+  description     String?
+  street          String?
+  city            String?
+  state           String?
+  zipCode         String?
+  country         String?
+  
+  // Assignment
+  assignedToId    String?
+  assignedTo      User?        @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  
+  createdById     String
+  createdBy       User         @relation("LeadCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  
+  // Conversion tracking
+  isConverted     Boolean      @default(false)
+  convertedAt     DateTime?
+  convertedToContactId String?
+  convertedToAccountId String?
+  
+  // Metadata
+  lastActivityDate DateTime?
+  customFields    Json?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("leads")
+  @@index([email])
+  @@index([status])
+  @@index([source])
+  @@index([assignedToId])
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+// ============================================
+// ACCOUNT MODEL (Companies/Organizations)
+// ============================================
+
+model Account {
+  id              String          @id @default(uuid())
+  name            String
+  accountNumber   String          @unique
+  website         String?
+  phone           String?
+  email           String?
+  type            AccountType     @default(CUSTOMER)
+  industry        AccountIndustry @default(OTHER)
+  size            AccountSize?
+  annualRevenue   Float?
+  employees       Int?
+  
+  // Billing Address
+  billingStreet   String?
+  billingCity     String?
+  billingState    String?
+  billingZipCode  String?
+  billingCountry  String?
+  
+  // Shipping Address
+  shippingStreet  String?
+  shippingCity    String?
+  shippingState   String?
+  shippingZipCode String?
+  shippingCountry String?
+  
+  // Hierarchy
+  parentAccountId String?
+  parentAccount   Account?  @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: SetNull)
+  childAccounts   Account[] @relation("AccountHierarchy")
+  
+  // Assignment
+  assignedToId    String?
+  assignedTo      User?     @relation("AccountAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  
+  territory       String?
+  description     String?
+  rating          Int?      @default(0) // 0-5 stars
+  isActive        Boolean   @default(true)
+  
+  // Social Media
+  linkedInUrl     String?
+  twitterHandle   String?
+  facebookUrl     String?
+  
+  // Metadata
+  customFields    Json?
+  lastActivityDate DateTime?
+  createdById     String
+  createdBy       User      @relation("AccountCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  contacts        Contact[]
+
+  @@map("accounts")
+  @@index([name])
+  @@index([accountNumber])
+  @@index([type])
+  @@index([industry])
+  @@index([assignedToId])
+  @@index([createdById])
+  @@index([parentAccountId])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+// ============================================
+// CONTACT MODEL (Individuals)
+// ============================================
+
+model Contact {
+  id              String    @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  mobile          String?
+  
+  // Professional Info
+  title           String?
+  department      String?
+  accountId       String?
+  account         Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  isPrimary       Boolean   @default(false)
+  reportsToId     String?
+  reportsTo       Contact?  @relation("ContactHierarchy", fields: [reportsToId], references: [id], onDelete: SetNull)
+  subordinates    Contact[] @relation("ContactHierarchy")
+  
+  // Personal Info
+  dateOfBirth     DateTime?
+  
+  // Mailing Address
+  mailingStreet   String?
+  mailingCity     String?
+  mailingState    String?
+  mailingZipCode  String?
+  mailingCountry  String?
+  
+  // Other Address
+  otherStreet     String?
+  otherCity       String?
+  otherState      String?
+  otherZipCode    String?
+  otherCountry    String?
+  
+  // Lead Source
+  leadSource      LeadSource?
+  description     String?
+  
+  // Social Media
+  linkedInUrl     String?
+  twitterHandle   String?
+  facebookUrl     String?
+  
+  // Assignment
+  assignedToId    String?
+  assignedTo      User?     @relation("ContactAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  customFields    Json?
+  lastActivityDate DateTime?
+  createdById     String
+  createdBy       User      @relation("ContactCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("contacts")
+  @@index([email])
+  @@index([accountId])
+  @@index([assignedToId])
+  @@index([createdById])
+  @@index([isPrimary])
+  @@index([createdAt])
+}

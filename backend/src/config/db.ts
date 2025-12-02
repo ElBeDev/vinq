@@ -1,36 +1,48 @@
-import mongoose from 'mongoose';
+import { PrismaClient } from '@prisma/client';
 import { logger } from '../utils/logger';
+
+// Singleton Prisma Client
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    log: process.env.NODE_ENV === 'development' 
+      ? ['query', 'error', 'warn'] 
+      : ['error'],
+  });
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>;
+}
+
+const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.prismaGlobal = prisma;
+}
 
 export const connectDB = async (): Promise<void> => {
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/vinq-crm';
-    
-    const conn = await mongoose.connect(mongoUri);
-
-    logger.info(`✅ MongoDB Connected: ${conn.connection.host}`);
-    logger.info(`📦 Database: ${conn.connection.name}`);
+    await prisma.$connect();
+    logger.info('✅ PostgreSQL Connected via Prisma');
+    logger.info(`📦 Database: ${process.env.DATABASE_URL?.split('@')[1]?.split('/')[1] || 'vinq_crm'}`);
   } catch (error) {
-    logger.error('❌ MongoDB Connection Error:', error);
+    logger.error('❌ PostgreSQL Connection Error:', error);
     process.exit(1);
   }
 };
 
-// Mongoose events
-mongoose.connection.on('connected', () => {
-  logger.info('🔌 Mongoose connected to MongoDB');
-});
-
-mongoose.connection.on('error', (err) => {
-  logger.error('🔥 Mongoose connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  logger.warn('⚠️ Mongoose disconnected from MongoDB');
-});
-
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  logger.info('👋 MongoDB connection closed through app termination');
+  await prisma.$disconnect();
+  logger.info('👋 PostgreSQL connection closed through app termination');
   process.exit(0);
 });
+
+process.on('SIGTERM', async () => {
+  await prisma.$disconnect();
+  logger.info('👋 PostgreSQL connection closed through app termination');
+  process.exit(0);
+});
+
+export default prisma;

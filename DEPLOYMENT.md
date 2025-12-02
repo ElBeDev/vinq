@@ -34,8 +34,8 @@ Ve a tu proyecto en Vercel → Settings → Environment Variables y agrega:
 NODE_ENV=production
 PORT=5000
 
-# MongoDB Atlas
-MONGO_URI=mongodb+srv://vinq_admin:<password>@cluster0.xxxxx.mongodb.net/vinq-crm?retryWrites=true&w=majority
+# Neon PostgreSQL
+DATABASE_URL=postgresql://vinq_user:password123@ep-cool-name-123456.us-east-2.aws.neon.tech/vinq_crm?sslmode=require
 
 # JWT Secrets (genera valores aleatorios seguros)
 JWT_SECRET=tu-jwt-secret-super-seguro-64-caracteres-minimo-produccion

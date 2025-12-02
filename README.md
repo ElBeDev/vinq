@@ -7,7 +7,8 @@
     <img src="https://img.shields.io/badge/React-18.2-blue?logo=react" alt="React" />
     <img src="https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Node.js-20-green?logo=node.js" alt="Node.js" />
-    <img src="https://img.shields.io/badge/MongoDB-7.0-green?logo=mongodb" alt="MongoDB" />
+    <img src="https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/Prisma-5.0-green?logo=prisma" alt="Prisma" />
     <img src="https://img.shields.io/badge/Ant_Design-5.12-blue?logo=ant-design" alt="Ant Design" />
   </p>
 </div>
@@ -99,10 +100,10 @@ vercel --prod
 - Variables de entorno configuradas
 
 ### 💻 Desarrollo Local
-
-#### Prerequisitos
+### Prerequisitos
 - Node.js 20+
-- MongoDB 7+
+- PostgreSQL 16+ (o cuenta gratuita en [Neon](https://neon.tech))
+- npm o yarn
 - npm o yarn
 
 #### 1. Clonar el repositorio
@@ -115,21 +116,39 @@ cd vinq
 ```bash
 cd backend
 npm install
+
+# Configurar variables de entorno
 cp .env.example .env
-# Editar .env con tus configuraciones
+# Edita .env y agrega tu DATABASE_URL de Neon
+
+# Generar cliente de Prisma
+npx prisma generate
+
+# Ejecutar migraciones
+npx prisma migrate dev --name init
+
+# Iniciar servidor
 npm run dev
 ```
-
-#### 3. Frontend Setup
-```bash
-cd frontend
-npm install
-cp .env.example .env
-# Editar .env con tus configuraciones
-npm run dev
-```
-
 #### 4. Usando Docker Compose (Recomendado para desarrollo)
+```bash
+# En la raíz del proyecto
+docker-compose up -d postgres redis
+
+# Ejecutar migraciones
+cd backend
+npx prisma migrate dev
+```
+
+**Servicios disponibles:**
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:5000
+- **PostgreSQL:** localhost:5432
+- **Redis:** localhost:6379
+
+**📘 Guías de Setup:**
+- **Desarrollo Local**: [SETUP.md](./SETUP.md)
+- **Deploy en Vercel**: [DEPLOYMENT_NEON.md](./DEPLOYMENT_NEON.md)se (Recomendado para desarrollo)
 ```bash
 # En la raíz del proyecto
 docker-compose up -d
@@ -170,15 +189,15 @@ docker-compose up -d
 - `GET /api/v1/leads/:id` - Obtener lead por ID
 - `PUT /api/v1/leads/:id` - Actualizar lead
 - `DELETE /api/v1/leads/:id` - Eliminar lead
-- `DELETE /api/v1/leads/bulk` - Eliminar múltiples leads
-- `PATCH /api/v1/leads/:id/assign` - Asignar lead a usuario
-- `POST /api/v1/leads/:id/convert` - Convertir lead a Contact/Account/Deal
-
-#### Endpoints de Contactos
-- `GET /api/v1/contacts` - Obtener contactos con filtros y paginación
-- `POST /api/v1/contacts` - Crear nuevo contacto
-- `GET /api/v1/contacts/stats` - Estadísticas de contactos
-- `GET /api/v1/contacts/:id` - Obtener contacto por ID
+#### Backend (.env)
+```env
+NODE_ENV=development
+PORT=5000
+DATABASE_URL=postgresql://usuario:password@host:5432/vinq_crm?sslmode=require
+JWT_SECRET=your-secret-key
+JWT_REFRESH_SECRET=your-refresh-secret-key
+CLIENT_URL=http://localhost:5173
+```GET /api/v1/contacts/:id` - Obtener contacto por ID
 - `PATCH /api/v1/contacts/:id` - Actualizar contacto
 - `DELETE /api/v1/contacts/:id` - Eliminar contacto (Admin/Manager)
 - `DELETE /api/v1/contacts/bulk` - Eliminar múltiples contactos (Admin/Manager)
