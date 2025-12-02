@@ -12,6 +12,9 @@ dotenv.config();
 // Initialize express app
 const app: Application = express();
 
+// Trust proxy - required for Vercel/behind reverse proxy
+app.set('trust proxy', 1);
+
 // Middlewares
 app.use(helmet()); // Security headers
 app.use(cors({
