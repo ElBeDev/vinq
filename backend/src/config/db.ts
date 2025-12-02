@@ -29,21 +29,26 @@ export const connectDB = async (): Promise<void> => {
     logger.info(`📦 Database: ${process.env.DATABASE_URL?.split('@')[1]?.split('/')[1] || 'vinq_crm'}`);
   } catch (error) {
     logger.error('❌ PostgreSQL Connection Error:', error);
-    process.exit(1);
+    // Don't exit in serverless environment
+    if (process.env.NODE_ENV !== 'production') {
+      process.exit(1);
+    }
   }
 };
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  await prisma.$disconnect();
-  logger.info('👋 PostgreSQL connection closed through app termination');
-  process.exit(0);
-});
+// Graceful shutdown (only for non-serverless)
+if (process.env.NODE_ENV !== 'production') {
+  process.on('SIGINT', async () => {
+    await prisma.$disconnect();
+    logger.info('👋 PostgreSQL connection closed through app termination');
+    process.exit(0);
+  });
 
-process.on('SIGTERM', async () => {
-  await prisma.$disconnect();
-  logger.info('👋 PostgreSQL connection closed through app termination');
-  process.exit(0);
-});
+  process.on('SIGTERM', async () => {
+    await prisma.$disconnect();
+    logger.info('👋 PostgreSQL connection closed through app termination');
+    process.exit(0);
+  });
+}
 
 export default prisma;

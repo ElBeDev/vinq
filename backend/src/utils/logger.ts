@@ -8,18 +8,16 @@ const logFormat = printf(({ level, message, timestamp, stack }) => {
 });
 
 // Create logger instance
-export const logger = winston.createLogger({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-  format: combine(
-    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    errors({ stack: true }),
-    logFormat
-  ),
-  transports: [
-    // Console transport
-    new winston.transports.Console({
-      format: combine(colorize(), logFormat),
-    }),
+const transports: winston.transport[] = [
+  // Console transport (always available)
+  new winston.transports.Console({
+    format: combine(colorize(), logFormat),
+  }),
+];
+
+// Only add file transports in non-serverless environments
+if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'production') {
+  transports.push(
     // File transport for errors
     new winston.transports.File({
       filename: 'logs/error.log',
@@ -28,8 +26,18 @@ export const logger = winston.createLogger({
     // File transport for all logs
     new winston.transports.File({
       filename: 'logs/combined.log',
-    }),
-  ],
+    })
+  );
+}
+
+export const logger = winston.createLogger({
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  format: combine(
+    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    errors({ stack: true }),
+    logFormat
+  ),
+  transports,
 });
 
 // Create stream for Morgan HTTP logger
