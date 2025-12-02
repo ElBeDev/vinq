@@ -1,9 +1,32 @@
 // @ts-ignore - Prisma Client is generated at runtime
 import { PrismaClient } from '@prisma/client';
+import { neonConfig, Pool } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import ws from 'ws';
 import { logger } from '../utils/logger';
 
-// Singleton Prisma Client
+// Configure Neon for serverless
+neonConfig.webSocketConstructor = ws;
+
+// Singleton Prisma Client with Neon adapter
 const prismaClientSingleton = () => {
+  // In serverless/edge environments, use Neon adapter
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error('DATABASE_URL is not defined');
+    }
+    
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaNeon(pool);
+    
+    return new PrismaClient({
+      adapter,
+      log: ['error'],
+    });
+  }
+  
+  // In development, use standard client
   return new PrismaClient({
     log: process.env.NODE_ENV === 'development' 
       ? ['query', 'error', 'warn'] 
