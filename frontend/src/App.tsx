@@ -17,6 +17,12 @@ import ResetPassword from '@/pages/Auth/ResetPassword';
 import LeadList from '@/pages/Leads/LeadList';
 import LeadForm from '@/pages/Leads/LeadForm';
 import LeadDetail from '@/pages/Leads/LeadDetail';
+import ContactList from '@/pages/Contacts/ContactList';
+import ContactForm from '@/pages/Contacts/ContactForm';
+import ContactDetail from '@/pages/Contacts/ContactDetail';
+import AccountList from '@/pages/Accounts/AccountList';
+import AccountForm from '@/pages/Accounts/AccountForm';
+import AccountDetail from '@/pages/Accounts/AccountDetail';
 
 // Components
 import ProtectedRoute from '@/components/common/ProtectedRoute';
@@ -118,7 +124,37 @@ function App() {
             element={
               <ProtectedRoute>
                 <MainLayout>
-                  <div>Módulo de Contactos (Próximamente)</div>
+                  <ContactList />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contacts/new"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <ContactForm />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contacts/:id"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <ContactDetail />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contacts/:id/edit"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <ContactForm />
                 </MainLayout>
               </ProtectedRoute>
             }
@@ -128,7 +164,37 @@ function App() {
             element={
               <ProtectedRoute>
                 <MainLayout>
-                  <div>Módulo de Cuentas (Próximamente)</div>
+                  <AccountList />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accounts/new"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <AccountForm />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accounts/:id"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <AccountDetail />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/accounts/:id/edit"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <AccountForm />
                 </MainLayout>
               </ProtectedRoute>
             }

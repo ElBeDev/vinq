@@ -14,8 +14,20 @@ dotenv.config();
 // Initialize express app
 const app: Application = express();
 
-// Connect to database
-connectDB();
+// Connect to database (con reconexión automática para serverless)
+let dbConnected = false;
+const ensureDbConnection = async () => {
+  if (!dbConnected) {
+    await connectDB();
+    dbConnected = true;
+  }
+};
+
+// Middleware para asegurar conexión DB en cada request (importante para serverless)
+app.use(async (_req, _res, next) => {
+  await ensureDbConnection();
+  next();
+});
 
 // Middlewares
 app.use(helmet()); // Security headers
@@ -29,11 +41,12 @@ app.use(cookieParser()); // Parse cookies
 app.use(apiLimiter); // Rate limiting
 
 // Health check route
-app.get('/health', (_req, res) => {
+app.get('/api/health', (_req, res) => {
   res.status(200).json({
     success: true,
     message: 'VinQ CRM API is running',
     timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
@@ -67,20 +80,23 @@ app.use('/api/v1/accounts', accountRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// Start server
-const PORT = process.env.PORT || 5000;
+// Start server (solo en desarrollo local)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  
+  app.listen(PORT, () => {
+    logger.info(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    logger.info(`📡 API available at: http://localhost:${PORT}/api/v1`);
+    logger.info(`💚 Health check: http://localhost:${PORT}/api/health`);
+  });
 
-app.listen(PORT, () => {
-  logger.info(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  logger.info(`📡 API available at: http://localhost:${PORT}/api/v1`);
-  logger.info(`💚 Health check: http://localhost:${PORT}/health`);
-});
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (err: Error) => {
+    logger.error('🔥 Unhandled Promise Rejection:', err);
+    // Close server & exit process
+    process.exit(1);
+  });
+}
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err: Error) => {
-  logger.error('🔥 Unhandled Promise Rejection:', err);
-  // Close server & exit process
-  process.exit(1);
-});
-
+// Export for Vercel serverless functions
 export default app;

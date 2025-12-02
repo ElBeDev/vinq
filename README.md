@@ -77,20 +77,41 @@ frontend/
 │   └── types/          # Tipos TypeScript
 ```
 
-## 🚀 Instalación Rápida
+## 🚀 Instalación y Deployment
 
-### Prerequisitos
+### 🌐 Deployment en Vercel (Producción)
+
+**Deploy en 1 click:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ElBeDev/vinq)
+
+O sigue la guía completa: [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+```bash
+# Deployment rápido con script
+./deploy.sh
+
+# O manualmente
+vercel --prod
+```
+
+**Pre-requisitos para producción:**
+- Cuenta en [Vercel](https://vercel.com)
+- MongoDB Atlas (gratis hasta 512MB)
+- Variables de entorno configuradas
+
+### 💻 Desarrollo Local
+
+#### Prerequisitos
 - Node.js 20+
 - MongoDB 7+
 - npm o yarn
 
-### 1. Clonar el repositorio
+#### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/tu-usuario/vinq-crm.git
-cd vinq-crm
+git clone https://github.com/ElBeDev/vinq.git
+cd vinq
 ```
 
-### 2. Backend Setup
+#### 2. Backend Setup
 ```bash
 cd backend
 npm install
@@ -99,7 +120,7 @@ cp .env.example .env
 npm run dev
 ```
 
-### 3. Frontend Setup
+#### 3. Frontend Setup
 ```bash
 cd frontend
 npm install
@@ -108,13 +129,13 @@ cp .env.example .env
 npm run dev
 ```
 
-### 4. Usando Docker Compose (Recomendado)
+#### 4. Usando Docker Compose (Recomendado para desarrollo)
 ```bash
 # En la raíz del proyecto
 docker-compose up -d
 ```
 
-Servicios disponibles:
+**Servicios disponibles:**
 - **Frontend:** http://localhost:5173
 - **Backend API:** http://localhost:5000
 - **MongoDB:** localhost:27017
@@ -152,6 +173,18 @@ Servicios disponibles:
 - `DELETE /api/v1/leads/bulk` - Eliminar múltiples leads
 - `PATCH /api/v1/leads/:id/assign` - Asignar lead a usuario
 - `POST /api/v1/leads/:id/convert` - Convertir lead a Contact/Account/Deal
+
+#### Endpoints de Contactos
+- `GET /api/v1/contacts` - Obtener contactos con filtros y paginación
+- `POST /api/v1/contacts` - Crear nuevo contacto
+- `GET /api/v1/contacts/stats` - Estadísticas de contactos
+- `GET /api/v1/contacts/:id` - Obtener contacto por ID
+- `PATCH /api/v1/contacts/:id` - Actualizar contacto
+- `DELETE /api/v1/contacts/:id` - Eliminar contacto (Admin/Manager)
+- `DELETE /api/v1/contacts/bulk` - Eliminar múltiples contactos (Admin/Manager)
+- `PATCH /api/v1/contacts/:id/assign` - Asignar contacto a usuario (Admin/Manager)
+- `PATCH /api/v1/contacts/:id/link-account` - Vincular contacto con Account
+- `POST /api/v1/contacts/merge` - Merge de contactos duplicados (Admin/Manager)
 
 ### Variables de Entorno
 
@@ -210,8 +243,21 @@ VITE_API_URL=http://localhost:5000/api/v1
 - [x] Acciones masivas
 - [x] Validación frontend y backend
 
+### ✅ Fase 5: Módulo de Contactos (Completado)
+- [x] Contact Model con 30+ campos
+- [x] Direcciones duales (mailing y other)
+- [x] Vinculación con Accounts (ref)
+- [x] Flag isPrimary para contacto principal
+- [x] 10 endpoints (CRUD + bulk + assign + link + merge + stats)
+- [x] ContactList con tabla de 9 columnas
+- [x] ContactForm con 6 secciones
+- [x] ContactDetail con 5 tabs
+- [x] Redes sociales integradas (LinkedIn, Twitter, Facebook)
+- [x] Merge de contactos duplicados
+- [x] 12 métodos de API en contactService
+
 ### 🚧 Próximas Fases
-- [ ] **Fase 5:** Módulo de Contactos
+- [ ] **Fase 6:** Módulo de Cuentas (Accounts)
 - [ ] **Fase 6:** Módulo de Cuentas
 - [ ] **Fase 7:** Módulo de Deals
 - [ ] **Fase 8:** Módulo de Productos (Propiedades)

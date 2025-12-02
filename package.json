@@ -1,0 +1,38 @@
+{
+  "name": "vinq-crm",
+  "version": "2.0.0",
+  "description": "VinQ CRM - Zoho Style CRM for Real Estate",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start:backend": "cd backend && npm start",
+    "preview:frontend": "cd frontend && npm run preview",
+    "vercel-build": "cd backend && npm install && cd ../frontend && npm install && npm run build"
+  },
+  "keywords": [
+    "crm",
+    "real-estate",
+    "zoho",
+    "react",
+    "typescript",
+    "express",
+    "mongodb"
+  ],
+  "author": "VinQ Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
