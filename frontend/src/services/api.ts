@@ -1,59 +1,58 @@
-import axios, { InternalAxiosRequestConfig, AxiosError } from 'axios'
-import { useAuthStore } from '../store/authStore'
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-
-const api = axios.create({
-  baseURL: API_URL,
+// Create axios instance
+const api: AxiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
-})
+  withCredentials: true,
+});
 
-// Request interceptor para agregar el token
+// Request interceptor - Add auth token
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = useAuthStore.getState().token
+    const token = localStorage.getItem('accessToken');
     if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return config
+    return config;
   },
-  (error: AxiosError) => Promise.reject(error)
-)
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  }
+);
 
-// Response interceptor para manejar errores
+// Response interceptor - Handle errors and token refresh
 api.interceptors.response.use(
-  (response) => response,
+  (response: AxiosResponse) => {
+    return response;
+  },
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Si el token expiró, intentar refrescarlo
+    // Handle 401 errors (Unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
+      originalRequest._retry = true;
 
       try {
-        const refreshToken = useAuthStore.getState().refreshToken
-        const response = await axios.post(`${API_URL}/auth/refresh-token`, {
-          refreshToken,
-        })
-
-        const { token, refreshToken: newRefreshToken } = response.data.data
-        useAuthStore.getState().login(useAuthStore.getState().user!, token, newRefreshToken)
-
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${token}`
-        }
-        return api(originalRequest)
+        // TODO: Implement refresh token logic
+        // const refreshToken = localStorage.getItem('refreshToken');
+        // const response = await axios.post('/auth/refresh', { refreshToken });
+        // localStorage.setItem('accessToken', response.data.accessToken);
+        // return api(originalRequest);
+        
+        // For now, just clear tokens and redirect to login
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       } catch (refreshError) {
-        useAuthStore.getState().logout()
-        window.location.href = '/login'
-        return Promise.reject(refreshError)
+        return Promise.reject(refreshError);
       }
     }
 
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-export default api
+export default api;

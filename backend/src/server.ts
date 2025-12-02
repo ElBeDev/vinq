@@ -1,75 +1,83 @@
-import express, { Application, Request, Response } from 'express';
-import mongoose from 'mongoose';
+import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import rateLimit from 'express-rate-limit';
-import { errorHandler } from './middlewares/errorHandler';
-import authRoutes from './routes/auth.routes';
-import userRoutes from './routes/user.routes';
-import leadRoutes from './routes/lead.routes';
-import propertyRoutes from './routes/property.routes';
-import opportunityRoutes from './routes/opportunity.routes';
-import activityRoutes from './routes/activity.routes';
+import { connectDB } from './config/db';
+import { logger } from './utils/logger';
+import { errorHandler, notFound } from './middlewares/errorHandler';
+import { apiLimiter } from './middlewares/rateLimit';
 
+// Load environment variables
 dotenv.config();
 
+// Initialize express app
 const app: Application = express();
-const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true,
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: (parseInt(process.env.RATE_LIMIT_WINDOW || '15')) * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
-  message: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo más tarde.',
-});
-app.use('/api/', limiter);
-
-// Database connection
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/vinq-crm');
-    console.log('✅ MongoDB connected successfully');
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
-  }
-};
-
+// Connect to database
 connectDB();
 
-// Routes
-app.get('/', (_req: Request, res: Response) => {
-  res.json({
-    message: 'VinQ CRM API - Real Estate Management System',
-    version: '1.0.0',
-    status: 'running',
+// Middlewares
+app.use(helmet()); // Security headers
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true,
+}));
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(cookieParser()); // Parse cookies
+app.use(apiLimiter); // Rate limiting
+
+// Health check route
+app.get('/health', (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'VinQ CRM API is running',
+    timestamp: new Date().toISOString(),
   });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/leads', leadRoutes);
-app.use('/api/properties', propertyRoutes);
-app.use('/api/opportunities', opportunityRoutes);
-app.use('/api/activities', activityRoutes);
+// API Routes
+app.get('/api/v1', (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to VinQ CRM API v1',
+    version: '2.0.0',
+    documentation: '/api/v1/docs',
+  });
+});
 
-// Error handling middleware
+// Import routes
+import authRoutes from './routes/auth.routes';
+import dashboardRoutes from './routes/dashboard.routes';
+import leadRoutes from './routes/lead.routes';
+
+// Use routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/leads', leadRoutes);
+// app.use('/api/v1/users', userRoutes);
+// app.use('/api/v1/contacts', contactRoutes);
+// etc...
+
+// Error handling
+app.use(notFound);
 app.use(errorHandler);
 
 // Start server
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  logger.info(`📡 API available at: http://localhost:${PORT}/api/v1`);
+  logger.info(`💚 Health check: http://localhost:${PORT}/health`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err: Error) => {
+  logger.error('🔥 Unhandled Promise Rejection:', err);
+  // Close server & exit process
+  process.exit(1);
 });
 
 export default app;

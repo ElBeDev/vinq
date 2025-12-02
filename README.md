@@ -1,233 +1,249 @@
-# VinQ CRM - Sistema de Gestión de Bienes Raíces
+# VinQ CRM - Sistema de Gestión para Bienes Raíces
 
-🏠 **CRM completo especializado en bienes raíces**, similar a Zoho CRM, con módulos de ventas, leads, propiedades, oportunidades y administración.
+<div align="center">
+  <h1>🏢 VinQ CRM</h1>
+  <p><strong>Sistema CRM completo estilo Zoho especializado en Bienes Raíces</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/React-18.2-blue?logo=react" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Node.js-20-green?logo=node.js" alt="Node.js" />
+    <img src="https://img.shields.io/badge/MongoDB-7.0-green?logo=mongodb" alt="MongoDB" />
+    <img src="https://img.shields.io/badge/Ant_Design-5.12-blue?logo=ant-design" alt="Ant Design" />
+  </p>
+</div>
 
-## 🚀 Características Principales
+---
 
-### ✅ Implementado
-- Sistema de autenticación JWT (login/registro)
-- Gestión de usuarios con roles (admin, manager, agent, user)
-- CRUD completo de Leads
-- CRUD completo de Propiedades
-- CRUD completo de Oportunidades de venta
-- Panel de administración
-- Dashboard con estadísticas
-- API REST documentada
-- Interfaz responsive con Material-UI
+## 📋 Descripción
 
-### 📋 Módulos del Sistema
+VinQ CRM es un sistema completo de gestión de relaciones con clientes (CRM) diseñado específicamente para el sector inmobiliario. Replica el diseño y funcionalidades de Zoho CRM, adaptado para la gestión de propiedades, leads, contactos, cuentas, oportunidades de venta y más.
 
-1. **Autenticación y Autorización**
-   - Login y registro
-   - Roles y permisos
-   - Tokens JWT con refresh
+## ✨ Características Principales
 
-2. **Gestión de Leads**
-   - Captura y seguimiento de prospectos
-   - Estados del lead
-   - Asignación a agentes
-   - Registro de actividades
-   - Conversión a oportunidad
+### 🎯 Módulos del Sistema
+- **Dashboard** - Vista personalizada con KPIs y gráficas
+- **Leads** - Gestión de prospectos con conversión automatizada
+- **Contactos** - Gestión de personas individuales
+- **Cuentas** - Gestión de empresas y organizaciones
+- **Deals** - Pipeline de ventas visual con drag & drop
+- **Productos** - Catálogo de propiedades inmobiliarias
+- **Cotizaciones** - Generación de cotizaciones con PDF
+- **Actividades** - Tareas, eventos, llamadas, emails
+- **Reportes** - Reportes predefinidos y personalizables
+- **Automatización** - Workflows y reglas automáticas
 
-3. **Catálogo de Propiedades**
-   - Gestión de inmuebles (casas, departamentos, terrenos, locales)
-   - Información detallada y multimedia
-   - Estados (disponible, reservada, vendida)
-   - Filtros de búsqueda
+### 🎨 Diseño Visual
+- Interfaz inspirada en Zoho CRM
+- Paleta de colores profesional (#1C4BDE)
+- Componentes Ant Design personalizados
+- Responsive y mobile-friendly
+- Sidebar colapsable
+- Top navbar con búsqueda global
 
-4. **Pipeline de Ventas**
-   - Oportunidades de venta
-   - Etapas personalizables
-   - Probabilidad de cierre
-   - Seguimiento de actividades
+### 🔐 Seguridad
+- Autenticación JWT con refresh tokens
+- Roles y permisos granulares (Admin, Manager, Agente, Usuario)
+- Rate limiting
+- Protección CORS y Helmet
+- Validación con Zod
+- Logs de auditoría
 
-5. **Panel de Administración**
-   - Gestión de usuarios
-   - Configuración del sistema
-   - Auditoría
+## 🏗️ Arquitectura
 
-## 🛠️ Stack Tecnológico
+### Backend (Node.js + Express + TypeScript)
+```
+backend/
+├── src/
+│   ├── config/         # Configuraciones
+│   ├── controllers/    # Controladores
+│   ├── middlewares/    # Middlewares
+│   ├── models/         # Modelos MongoDB
+│   ├── routes/         # Rutas API
+│   ├── services/       # Lógica de negocio
+│   ├── utils/          # Utilidades
+│   └── server.ts       # Punto de entrada
+```
 
-### Backend
+### Frontend (React + Vite + TypeScript)
+```
+frontend/
+├── src/
+│   ├── components/     # Componentes reutilizables
+│   ├── pages/          # Páginas por módulo
+│   ├── layouts/        # Layouts
+│   ├── services/       # API services
+│   ├── store/          # Zustand stores
+│   ├── styles/         # Tema y estilos
+│   └── types/          # Tipos TypeScript
+```
+
+## 🚀 Instalación Rápida
+
+### Prerequisitos
 - Node.js 20+
-- Express.js
-- TypeScript
-- MongoDB + Mongoose
-- JWT Authentication
-- bcrypt para contraseñas
-
-### Frontend
-- React 18
-- TypeScript
-- Vite
-- Material-UI (MUI)
-- React Router v6
-- Zustand (state management)
-- Axios
-- React Hook Form + Zod
-
-## 📦 Instalación y Configuración
-
-### Prerrequisitos
-- Node.js 20 o superior
-- MongoDB 7 o superior
+- MongoDB 7+
 - npm o yarn
 
 ### 1. Clonar el repositorio
-\`\`\`bash
-git clone <repository-url>
-cd VinQ
-\`\`\`
+```bash
+git clone https://github.com/tu-usuario/vinq-crm.git
+cd vinq-crm
+```
 
-### 2. Configurar Backend
-
-\`\`\`bash
+### 2. Backend Setup
+```bash
 cd backend
 npm install
-\`\`\`
+cp .env.example .env
+# Editar .env con tus configuraciones
+npm run dev
+```
 
-Crear archivo \`.env\` basado en \`.env.example\`:
+### 3. Frontend Setup
+```bash
+cd frontend
+npm install
+cp .env.example .env
+# Editar .env con tus configuraciones
+npm run dev
+```
 
-\`\`\`env
-PORT=5000
+### 4. Usando Docker Compose (Recomendado)
+```bash
+# En la raíz del proyecto
+docker-compose up -d
+```
+
+Servicios disponibles:
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:5000
+- **MongoDB:** localhost:27017
+- **Redis:** localhost:6379
+
+## 📖 Documentación
+
+### Backend API
+- **Health Check:** `GET /health`
+- **API Info:** `GET /api/v1`
+
+#### Endpoints de Autenticación
+- `POST /api/v1/auth/register` - Registro de usuario
+- `POST /api/v1/auth/login` - Login
+- `POST /api/v1/auth/logout` - Logout
+- `POST /api/v1/auth/refresh-token` - Refrescar token
+- `POST /api/v1/auth/forgot-password` - Solicitar reset de contraseña
+- `POST /api/v1/auth/reset-password/:token` - Resetear contraseña
+- `GET /api/v1/auth/me` - Obtener usuario actual
+
+#### Endpoints del Dashboard
+- `GET /api/v1/dashboard/stats` - Estadísticas generales
+- `GET /api/v1/dashboard/kpis` - KPIs por rol
+- `GET /api/v1/dashboard/recent-activity` - Actividad reciente
+- `GET /api/v1/dashboard/charts` - Datos para gráficas
+- `GET /api/v1/dashboard/upcoming` - Próximas tareas/eventos
+
+#### Endpoints de Leads
+- `GET /api/v1/leads` - Obtener leads con filtros y paginación
+- `POST /api/v1/leads` - Crear nuevo lead
+- `GET /api/v1/leads/stats` - Estadísticas de leads
+- `GET /api/v1/leads/:id` - Obtener lead por ID
+- `PUT /api/v1/leads/:id` - Actualizar lead
+- `DELETE /api/v1/leads/:id` - Eliminar lead
+- `DELETE /api/v1/leads/bulk` - Eliminar múltiples leads
+- `PATCH /api/v1/leads/:id/assign` - Asignar lead a usuario
+- `POST /api/v1/leads/:id/convert` - Convertir lead a Contact/Account/Deal
+
+### Variables de Entorno
+
+#### Backend (.env)
+```env
 NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/vinq-crm
-JWT_SECRET=your-super-secret-jwt-key
-JWT_EXPIRE=7d
-JWT_REFRESH_SECRET=your-refresh-token-secret
-JWT_REFRESH_EXPIRE=30d
-FRONTEND_URL=http://localhost:5173
-\`\`\`
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/vinq-crm
+JWT_SECRET=your-secret-key
+JWT_REFRESH_SECRET=your-refresh-secret-key
+CLIENT_URL=http://localhost:5173
+```
 
-### 3. Configurar Frontend
+#### Frontend (.env)
+```env
+VITE_API_URL=http://localhost:5000/api/v1
+```
 
-\`\`\`bash
-cd frontend
-npm install
-\`\`\`
+## 🛣️ Roadmap
 
-Crear archivo \`.env\` basado en \`.env.example\`:
+### ✅ Fase 1: Setup Inicial (Completado)
+- [x] Estructura de proyecto
+- [x] Backend con Express + TypeScript
+- [x] Frontend con React + Vite + Ant Design
+- [x] Docker Compose
+- [x] Tema de colores Zoho
+- [x] TopNavbar y Sidebar colapsable
+- [x] Layouts y navegación
 
-\`\`\`env
-VITE_API_URL=http://localhost:5000/api
-VITE_APP_NAME=VinQ CRM
-\`\`\`
+### ✅ Fase 2: Sistema de Autenticación (Completado)
+- [x] Modelo de Usuario con roles
+- [x] Login/Register con JWT
+- [x] Refresh tokens (15min + 7 días)
+- [x] Forgot/Reset Password
+- [x] Middlewares requireAuth y requireRole
+- [x] Protected routes en frontend
+- [x] Token refresh automático
+- [x] Validación con Zod
 
-### 4. Iniciar MongoDB
+### ✅ Fase 3: Dashboard y Home (Completado)
+- [x] Dashboard con KPIs dinámicos
+- [x] Gráficas con Recharts
+- [x] Activity Feed con timeline
+- [x] Filtros de periodo
+- [x] 5 endpoints de estadísticas
+- [x] Loading states y manejo de errores
 
-Si tienes MongoDB instalado localmente:
-\`\`\`bash
-mongod
-\`\`\`
+### ✅ Fase 4: Módulo de Leads (Completado)
+- [x] Lead Model con 25+ campos
+- [x] Enums: Status, Source, Rating
+- [x] 9 endpoints (CRUD + bulk + assign + convert + stats)
+- [x] LeadList con filtros avanzados
+- [x] LeadForm create/edit con React Hook Form
+- [x] LeadDetail con 4 tabs
+- [x] Búsqueda en tiempo real
+- [x] Acciones masivas
+- [x] Validación frontend y backend
 
-O usa Docker:
-\`\`\`bash
-docker run -d -p 27017:27017 --name mongodb mongo:7
-\`\`\`
+### 🚧 Próximas Fases
+- [ ] **Fase 5:** Módulo de Contactos
+- [ ] **Fase 6:** Módulo de Cuentas
+- [ ] **Fase 7:** Módulo de Deals
+- [ ] **Fase 8:** Módulo de Productos (Propiedades)
+- [ ] **Fase 9:** Módulo de Cotizaciones
+- [ ] **Fase 10:** Módulo de Actividades
 
-### 5. Ejecutar la aplicación
+Ver [WORKFLOW.md](./WORKFLOW.md) para el plan completo.
 
-**Terminal 1 - Backend:**
-\`\`\`bash
-cd backend
-npm run dev
-\`\`\`
+## 🤝 Contribuir
 
-**Terminal 2 - Frontend:**
-\`\`\`bash
-cd frontend
-npm run dev
-\`\`\`
-
-La aplicación estará disponible en:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:5000
-
-## 🐳 Docker (Alternativa)
-
-Para ejecutar todo con Docker Compose:
-
-\`\`\`bash
-docker-compose up
-\`\`\`
-
-## 📚 API Endpoints
-
-### Autenticación
-- `POST /api/auth/register` - Registro de usuario
-- `POST /api/auth/login` - Iniciar sesión
-- `GET /api/auth/me` - Obtener usuario actual
-- `POST /api/auth/refresh-token` - Refrescar token
-
-### Usuarios
-- `GET /api/users` - Listar usuarios (admin/manager)
-- `GET /api/users/:id` - Obtener usuario
-- `PUT /api/users/:id` - Actualizar usuario
-- `DELETE /api/users/:id` - Desactivar usuario (admin)
-
-### Leads
-- `GET /api/leads` - Listar leads
-- `POST /api/leads` - Crear lead
-- `GET /api/leads/:id` - Obtener lead
-- `PUT /api/leads/:id` - Actualizar lead
-- `DELETE /api/leads/:id` - Eliminar lead
-- `POST /api/leads/:id/activities` - Agregar actividad
-- `POST /api/leads/:id/convert` - Convertir a oportunidad
-
-### Propiedades
-- `GET /api/properties` - Listar propiedades
-- `POST /api/properties` - Crear propiedad
-- `GET /api/properties/:id` - Obtener propiedad
-- `PUT /api/properties/:id` - Actualizar propiedad
-- `DELETE /api/properties/:id` - Eliminar propiedad
-
-### Oportunidades
-- `GET /api/opportunities` - Listar oportunidades
-- `POST /api/opportunities` - Crear oportunidad
-- `GET /api/opportunities/:id` - Obtener oportunidad
-- `PUT /api/opportunities/:id` - Actualizar oportunidad
-- `DELETE /api/opportunities/:id` - Eliminar oportunidad
-- `POST /api/opportunities/:id/activities` - Agregar actividad
-- `PATCH /api/opportunities/:id/stage` - Cambiar etapa
-
-## 👥 Roles y Permisos
-
-- **Admin**: Acceso total al sistema
-- **Manager**: Gestión de equipo y visualización amplia
-- **Agent**: Gestión de sus propios leads y oportunidades
-- **User**: Acceso limitado
-
-## 📖 Workflow del Proyecto
-
-Consulta el archivo `WORKFLOW.md` para ver el plan completo de desarrollo, arquitectura y roadmap del proyecto.
-
-## 🔒 Seguridad
-
-- Autenticación JWT
-- Contraseñas hasheadas con bcrypt
-- Rate limiting en API
-- CORS configurado
-- Validación de datos
-- Roles y permisos
-
-## 🚧 Próximas Funcionalidades
-
-- [ ] Reportes y analítica avanzada
-- [ ] Automatización de workflows
-- [ ] Módulo de marketing
-- [ ] Integraciones (WhatsApp, Email, etc.)
-- [ ] Notificaciones en tiempo real
-- [ ] Carga de archivos (Cloudinary)
-- [ ] Sistema de tareas y calendario
-
-## 🤝 Contribución
-
-Las contribuciones son bienvenidas. Por favor, abre un issue primero para discutir los cambios que te gustaría hacer.
+Las contribuciones son bienvenidas. Por favor:
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
 ## 📝 Licencia
 
-MIT
+Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más información.
 
-## 👨‍💻 Autor
+## 👥 Equipo
 
-VinQ Team - 2025
+**VinQ Team** - [GitHub](https://github.com/tu-usuario)
+
+## 📧 Contacto
+
+Para preguntas o sugerencias, por favor abre un issue en GitHub.
+
+---
+
+<div align="center">
+  <p>Hecho con ❤️ para el sector inmobiliario</p>
+  <p>Inspirado en Zoho CRM</p>
+</div>

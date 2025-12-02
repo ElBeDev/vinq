@@ -1,154 +1,206 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import {
-  Container,
-  Box,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  Avatar,
-  Grid,
-} from '@mui/material'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import { toast } from 'react-toastify'
-import { authService } from '../../services/authService'
-import { useAuthStore } from '../../store/authStore'
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Form, Input, Button, message } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { registerSchema, RegisterFormData } from '../../schemas/auth.schema';
+import { useAuthStore } from '../../store/authStore';
+import api from '../../services/api';
+import { colors } from '../../styles/theme';
 
-export default function Register() {
-  const navigate = useNavigate()
-  const { login } = useAuthStore()
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    phone: '',
-  })
+const Register: React.FC = () => {
+  const navigate = useNavigate();
+  const { setAuth } = useAuthStore();
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      phone: '',
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
+  const onSubmit = async (data: RegisterFormData) => {
+    setLoading(true);
     try {
-      const response = await authService.register(formData)
-      const { user, token, refreshToken } = response.data
-      login(user, token, refreshToken)
-      toast.success('¡Registro exitoso!')
-      navigate('/dashboard')
+      const { confirmPassword, ...registerData } = data;
+      const response = await api.post('/auth/register', registerData);
+      
+      const { user, accessToken, refreshToken } = response.data.data;
+
+      // Guardar en store
+      setAuth(user, accessToken, refreshToken);
+
+      message.success('¡Cuenta creada exitosamente!');
+      navigate('/');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error al registrarse')
+      const errorMessage = error.response?.data?.message || 'Error al registrar usuario';
+      message.error(errorMessage);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <Container component="main" maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
+    <div style={{ maxWidth: '480px', width: '100%', padding: '0 24px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '28px', marginBottom: '8px', color: colors.text.primary }}>
+          Crear Cuenta
+        </h1>
+        <p style={{ color: colors.text.secondary }}>
+          Completa el formulario para registrarte
+        </p>
+      </div>
+
+      <Form
+        layout="vertical"
+        onFinish={handleSubmit(onSubmit)}
+        autoComplete="off"
       >
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <PersonAddIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          VinQ CRM - Registro
-        </Typography>
-        <Paper elevation={3} sx={{ mt: 3, p: 4, width: '100%' }}>
-          <Box component="form" onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="Nombre"
-                  name="firstName"
-                  autoComplete="given-name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Apellido"
-                  name="lastName"
-                  autoComplete="family-name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Correo Electrónico"
-                  name="email"
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="phone"
-                  label="Teléfono"
-                  name="phone"
-                  autoComplete="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Contraseña"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
-            >
-              {loading ? 'Registrando...' : 'Registrarse'}
-            </Button>
-            <Grid container justifyContent="center">
-              <Grid item>
-                <Link to="/login" style={{ textDecoration: 'none' }}>
-                  <Typography variant="body2" color="primary">
-                    ¿Ya tienes cuenta? Inicia sesión
-                  </Typography>
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
-  )
-}
+        <Form.Item
+          label="Nombre Completo"
+          validateStatus={errors.name ? 'error' : ''}
+          help={errors.name?.message}
+        >
+          <Controller
+            name="name"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                prefix={<UserOutlined style={{ color: colors.text.tertiary }} />}
+                placeholder="Juan Pérez"
+                size="large"
+                autoComplete="name"
+              />
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Email"
+          validateStatus={errors.email ? 'error' : ''}
+          help={errors.email?.message}
+        >
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                prefix={<MailOutlined style={{ color: colors.text.tertiary }} />}
+                placeholder="tu@email.com"
+                size="large"
+                autoComplete="email"
+              />
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Teléfono (opcional)"
+          validateStatus={errors.phone ? 'error' : ''}
+          help={errors.phone?.message}
+        >
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                prefix={<PhoneOutlined style={{ color: colors.text.tertiary }} />}
+                placeholder="+57 300 123 4567"
+                size="large"
+                autoComplete="tel"
+              />
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Contraseña"
+          validateStatus={errors.password ? 'error' : ''}
+          help={errors.password?.message}
+        >
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <Input.Password
+                {...field}
+                prefix={<LockOutlined style={{ color: colors.text.tertiary }} />}
+                placeholder="Mínimo 8 caracteres"
+                size="large"
+                autoComplete="new-password"
+              />
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Confirmar Contraseña"
+          validateStatus={errors.confirmPassword ? 'error' : ''}
+          help={errors.confirmPassword?.message}
+        >
+          <Controller
+            name="confirmPassword"
+            control={control}
+            render={({ field }) => (
+              <Input.Password
+                {...field}
+                prefix={<LockOutlined style={{ color: colors.text.tertiary }} />}
+                placeholder="Repite tu contraseña"
+                size="large"
+                autoComplete="new-password"
+              />
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            size="large"
+            block
+            loading={loading}
+            style={{ 
+              height: '44px',
+              fontSize: '16px',
+              fontWeight: 500,
+              marginTop: '8px'
+            }}
+          >
+            Crear Cuenta
+          </Button>
+        </Form.Item>
+
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+          <span style={{ color: colors.text.secondary }}>
+            ¿Ya tienes cuenta?{' '}
+          </span>
+          <Link 
+            to="/login" 
+            style={{ 
+              color: colors.primary,
+              fontWeight: 500
+            }}
+          >
+            Inicia sesión
+          </Link>
+        </div>
+      </Form>
+    </div>
+  );
+};
+
+export default Register;
