@@ -10,27 +10,19 @@ neonConfig.webSocketConstructor = ws;
 
 // Singleton Prisma Client with Neon adapter
 const prismaClientSingleton = () => {
-  // In serverless/edge environments, use Neon adapter
-  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) {
-      throw new Error('DATABASE_URL is not defined');
-    }
-    
-    const pool = new Pool({ connectionString });
-    const adapter = new PrismaNeon(pool as any);
-    
-    return new PrismaClient({
-      adapter: adapter as any,
-      log: ['error'],
-    });
+  // Always use Neon adapter in serverless
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    logger.error('DATABASE_URL is not defined');
+    throw new Error('DATABASE_URL is not defined');
   }
   
-  // In development, use standard client
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaNeon(pool as any);
+  
   return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' 
-      ? ['query', 'error', 'warn'] 
-      : ['error'],
+    adapter: adapter as any,
+    log: ['error'],
   });
 };
 
@@ -39,11 +31,19 @@ declare global {
   var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>;
 }
 
-const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prismaGlobal = prisma;
+// Lazy initialization - only create when accessed
+function getPrismaClient() {
+  if (!globalThis.prismaGlobal) {
+    globalThis.prismaGlobal = prismaClientSingleton();
+  }
+  return globalThis.prismaGlobal;
 }
+
+const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    return getPrismaClient()[prop as keyof PrismaClient];
+  }
+});
 
 export const connectDB = async (): Promise<void> => {
   try {
