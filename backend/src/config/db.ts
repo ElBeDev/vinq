@@ -12,6 +12,12 @@ neonConfig.webSocketConstructor = ws;
 const prismaClientSingleton = () => {
   // Always use Neon adapter in serverless
   const connectionString = process.env.DATABASE_URL;
+  
+  console.log('Initializing Prisma Client...');
+  console.log('DATABASE_URL exists:', !!connectionString);
+  console.log('DATABASE_URL length:', connectionString?.length || 0);
+  console.log('All env vars:', Object.keys(process.env).filter(k => k.includes('DATABASE')));
+  
   if (!connectionString) {
     logger.error('DATABASE_URL is not defined');
     throw new Error('DATABASE_URL is not defined');
