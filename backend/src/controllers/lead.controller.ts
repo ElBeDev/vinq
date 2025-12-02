@@ -47,32 +47,32 @@ export const deleteLead = async (
 };
 
 export const bulkDeleteLeads = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Lead endpoints not yet implemented', 501));
 };
 
 export const assignLead = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Lead endpoints not yet implemented', 501));
 };
 
 export const convertLead = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Lead endpoints not yet implemented', 501));
 };
 
 export const getLeadStats = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Lead endpoints not yet implemented', 501));

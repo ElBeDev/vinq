@@ -7,80 +7,80 @@ import { AppError } from '../middlewares/errorHandler';
  */
 
 export const createContact = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const getContacts = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const getContact = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const updateContact = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const deleteContact = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const bulkDeleteContacts = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const assignContact = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const linkToAccount = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const mergeContacts = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
 };
 
 export const getContactStats = async (
-  req: Request,
-  res: Response,
+  _req: Request,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   next(new AppError('Contact endpoints not yet implemented', 501));
