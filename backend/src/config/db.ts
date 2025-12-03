@@ -10,25 +10,29 @@ neonConfig.webSocketConstructor = ws;
 
 // Singleton Prisma Client with Neon adapter
 const prismaClientSingleton = () => {
-  // Always use Neon adapter in serverless
+  // Get DATABASE_URL at runtime
   const connectionString = process.env.DATABASE_URL;
   
-  console.log('Initializing Prisma Client...');
+  console.log('=== Prisma Initialization ===');
   console.log('DATABASE_URL exists:', !!connectionString);
   console.log('DATABASE_URL length:', connectionString?.length || 0);
-  console.log('All env vars:', Object.keys(process.env).filter(k => k.includes('DATABASE')));
+  console.log('Environment:', process.env.VERCEL ? 'Vercel' : 'Local');
   
   if (!connectionString) {
+    const error = new Error('DATABASE_URL is not defined');
     logger.error('DATABASE_URL is not defined');
-    throw new Error('DATABASE_URL is not defined');
+    console.error('DATABASE_URL is not defined');
+    throw error;
   }
   
+  console.log('Creating Neon Pool with connection string...');
   const pool = new Pool({ connectionString });
   const adapter = new PrismaNeon(pool as any);
   
+  console.log('Creating PrismaClient with Neon adapter...');
   return new PrismaClient({
     adapter: adapter as any,
-    log: ['error'],
+    log: ['error', 'warn'],
   });
 };
 
@@ -40,6 +44,7 @@ declare global {
 // Lazy initialization - only create when accessed
 function getPrismaClient() {
   if (!globalThis.prismaGlobal) {
+    console.log('First access - initializing Prisma Client...');
     globalThis.prismaGlobal = prismaClientSingleton();
   }
   return globalThis.prismaGlobal;
