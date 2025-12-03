@@ -21,7 +21,7 @@
     "preview:frontend": "cd frontend && npm run preview",
     "prisma:generate": "cd backend && npx prisma generate",
     "prisma:migrate": "cd backend && npx prisma migrate deploy",
-    "vercel-build": "npm install --prefix backend && cd backend && npx prisma generate && npm run build && cd ../frontend && npm install && npm run build",
+    "vercel-build": "echo '🔧 Installing backend dependencies...' && npm install --prefix backend && echo '🔨 Generating Prisma Client...' && cd backend && npx prisma generate && echo '🏗️ Building backend...' && npm run build && echo '📦 Installing frontend dependencies...' && cd ../frontend && npm install && echo '🎨 Building frontend...' && npm run build && echo '✅ Vercel build complete!'",
     "postinstall": "npm install --prefix backend && cd backend && npx prisma generate || true"
   },
   "keywords": [

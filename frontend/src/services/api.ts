@@ -2,7 +2,11 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosE
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || (
+    import.meta.env.PROD 
+      ? '/api/v1' // En producción, usa rutas relativas (Vercel rewrites)
+      : 'http://localhost:5000/api/v1' // En desarrollo, usa localhost
+  ),
   headers: {
     'Content-Type': 'application/json',
   },
