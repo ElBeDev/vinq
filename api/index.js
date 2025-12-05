@@ -1,8 +1,6 @@
 // Vercel Serverless Function for Backend API
 // This file acts as the entry point for all API routes in Vercel
-
-// Load environment variables
-require('dotenv').config({ path: require('path').join(__dirname, '../backend/.env') });
+// Environment variables are automatically available from Vercel
 
 module.exports = async (req, res) => {
   try {
